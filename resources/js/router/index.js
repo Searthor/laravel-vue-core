@@ -1,4 +1,4 @@
-import { createRouter , createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 import Home  from '../../components/Home/Index.vue'
 import Product  from '../../components/Product/index.vue'

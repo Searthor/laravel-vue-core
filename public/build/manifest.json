@@ -1,16 +1,23 @@
 {
+  "public/images/logo.png": {
+    "file": "assets/logo-B-MehIEK.png",
+    "src": "public/images/logo.png"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-BnpfYJUi.css",
+    "file": "assets/app-0majmFMA.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-BYlqqlFq.js",
+    "file": "assets/app-CuBU_mlE.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-BhLOSBIu.css"
+      "assets/app-CzUyT-M4.css"
+    ],
+    "assets": [
+      "assets/logo-B-MehIEK.png"
     ]
   }
 }

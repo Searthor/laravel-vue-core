@@ -536,9 +536,14 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\Auth\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
-        'App\\Http\\Controllers\\ProductController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProductController.php',
+        'App\\Http\\Controllers\\Settings\\RolesComtroller' => __DIR__ . '/../..' . '/app/Http/Controllers/Settings/RolesComtroller.php',
+        'App\\Http\\Resources\\RolesResoures' => __DIR__ . '/../..' . '/app/Http/Resources/RolesResoures.php',
+        'App\\Models\\FunctionAvailable' => __DIR__ . '/../..' . '/app/Models/FunctionAvailable.php',
+        'App\\Models\\FunctionModel' => __DIR__ . '/../..' . '/app/Models/FunctionModel.php',
         'App\\Models\\Products' => __DIR__ . '/../..' . '/app/Models/Products.php',
+        'App\\Models\\Roles' => __DIR__ . '/../..' . '/app/Models/Roles.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

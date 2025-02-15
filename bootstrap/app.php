@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -12,7 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+
+        $middleware->api(append:[
+            EnsureFrontendRequestsAreStateful::class, // Add this for SPA authentication
+      
+        ]);
+        $middleware->web(append:[
+            EnsureFrontendRequestsAreStateful::class, // Add this for SPA authentication
+      
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

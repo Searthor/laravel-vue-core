@@ -5,6 +5,8 @@ import { createApp } from "vue";
 import app from "../components/App.vue";
 import Swal from 'sweetalert2';
 
+
+
 window.Swal = Swal
 
 const toast = Swal.mixin({

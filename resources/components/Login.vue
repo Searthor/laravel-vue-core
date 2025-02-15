@@ -33,22 +33,51 @@ const phone = ref("");
 const password = ref("");
 const errorMessage = ref("");
 const router = useRouter();
-
 const login = async () => {
     try {
         console.log(phone.value,password.value)
         const formData = new FormData();
         formData.append('phone', phone.value);
         formData.append('password', password.value);
-        const response = await axios.post("api/login", formData);
-
-        if (response.data.success) {
-            localStorage.setItem("auth_token", response.data.token);
-            window.location.href = "/";
-        }
+            const response = await axios.post("api/login", formData,{
+            headers: {
+                Accept: "application/json",
+            }
+            });
+            if (response.data.success) {
+                localStorage.setItem("auth_token", response.data.token);
+                window.location.href = "/";
+            }
     } catch (error) {
         console.log(error)
         // errorMessage.value = "Invalid credentials!";
     }
 };
+// const login = async () => {
+//     try {
+//         console.log(phone.value, password.value);
+//         const formData = new FormData();
+//         formData.append('phone', phone.value);
+//         formData.append('password', password.value);
+//         // Then send the login request
+//         axios.get('/sanctum/csrf-cookie', { withCredentials: true }).then( async () => {
+//                 const response = await axios.post("api/login", formData, {
+//                     headers: {
+//                         Accept: "application/json",
+//                         //Content-Type: "application/json"
+//                     }
+//                 });
+//                 // If login is successful, store the token and redirect
+//                 if (response.data.success) {
+//                     localStorage.setItem("auth_token", response.data.token);
+//                     window.location.href = "/";
+//                 }
+//         })
+//     } catch (error) {
+//         console.log("Error during login:", error);
+//         // Optionally, set an error message
+//         // errorMessage.value = "Invalid credentials!";
+//     }
+// };
+
 </script>

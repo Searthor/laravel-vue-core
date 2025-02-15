@@ -160,7 +160,7 @@
         </div>
     </div>
 
-    <!-- <button class="btn btn-danger" @click="logout()">logout</button> -->
+    <button class="btn btn-danger" @click="logout()">logout</button>
 
 </template>
 
@@ -256,10 +256,35 @@ const form = ref({
 const closeModal = () => {
     showModal.value = false;
 }
-
+// const logout = async () => {
+//     const token = localStorage.getItem("auth_token");
+//     const headers = {
+//         Authorization: `Bearer ${token}`,
+//         Accept: "application/json", // 👈 Important to prevent CSRF check
+//     };
+//     await axios.post('/logout', { headers });
+// }
 const logout = async () => {
-    await axios.post('/logout');
-}
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+         toast.fire({ icon: "success", title: "ອອກຈາກລະບົບສໍາເລັດແລ້ວ" });
+        return;
+    }
+    try {
+        await axios.post('/api/logout', {}, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json", // Important to prevent CSRF check
+            }
+        });
+        localStorage.removeItem("auth_token");
+        toast.fire({ icon: "success", title: "ອອກຈາກລະບົບສໍາເລັດແລ້ວ" });
+        window.location.href = "/login";
+    } catch (error) {
+        console.error("Logout failed:", error.response?.data || error.message);
+    }
+};
+
 
 const validateForm = () => {
     errors.value = {}
@@ -332,10 +357,10 @@ const submitForm = async () => {
             toast.fire({ icon: "success", title: "Updated Successfully" });
         } else {
             response = await axios.post("/api/create_roles", formData,{ headers });
-
             toast.fire({ icon: "success", title: "ເພີ່ມສິດສໍາເລັດແລ້ວ" });
         }
-
+        closeModal();
+        getRoles();
         console.log("Response:", response);
     } catch (error) {
         console.error("Error:", error.response?.data || error.message);

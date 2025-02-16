@@ -5,6 +5,7 @@ import Roles from "../../components/Backend/Settings/Roles.vue";
 import Users from "../../components/Backend/Settings/User.vue";
 import Branch from "../../components/Backend/Settings/branchs/Branch.vue";
 import Login from "../../components/Login.vue";
+import YouNotAuthorized from "../../components/YouNotAuthorized.vue";
 
 const isAuthenticated = () => !!localStorage.getItem('auth_token');
 
@@ -67,6 +68,14 @@ const routes = [
             } else {
                 next();
             }
+        },
+    },
+    {
+        path: "/403_authorized",
+        name: "403_authorized",
+        component: YouNotAuthorized,
+        beforeEnter: (to, from, next) => {
+                next();
         },
     },
 ];

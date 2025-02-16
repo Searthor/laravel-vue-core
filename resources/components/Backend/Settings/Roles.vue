@@ -2,20 +2,24 @@
     <div class="row page-titles mx-0 px-4">
         <div class="col-sm-6 p-md-0">
             <div class="welcome-text">
-                <p>ສິດນໍາໃຊ້ລະບົບ</p>
+                <h5><i class="fas fa-layer-group"></i>
+                        {{ $t('settings') }}
+                        <i class="fa fa-angle-double-right"></i>
+                        {{ $t('role') }}
+                    </h5>
             </div>
         </div>
         <div class="col-sm-6  justify-content-sm-end  d-flex">
-            <a>Dashboard</a>
+            <router-link  to="dashboard"><i class="fa fa-home"></i> Dashboard</router-link>
         </div>
     </div>
 
     <div class="col-lg-12 mt-4">
         <div class="card">
-            <div class="card-header p-3 " style="background: gray;">
+            <div class="card-header card-light">
                 <div class="row w-100">
                     <div class="col-md-3">
-                        <input class="form-control" placeholder="Search..."></input>
+                        <input type="text" class="form-control" :placeholder="$t('search') + '...'" />
                     </div>
                     <div class="col-md-2">
                         <select class="form-control">
@@ -25,7 +29,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-primary btn" @click="openModal">ເພີ່ມໃໝ່</button>
+                        <button class="btn btn-primary btn" @click="openModal">{{ $t('add') }}</button>
                     </div>
                 </div>
             </div>
@@ -40,10 +44,10 @@
                     <table class="table table-responsive-sm">
                         <thead>
                             <tr class="text-center">
-                                <th scope="col">#</th>
-                                <th scope="col">ຊື່</th>
-                                <th scope="col">ລາຍລະອຽດ</th>
-                                <th scope="col">ຈັດການ</th>
+                                <th scope="col">{{ $t('no') }}</th>
+                                <th scope="col">{{ $t('name') }}</th>
+                                <th scope="col">{{ $t('des') }}</th>
+                                <th scope="col">{{ $t('action') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -52,10 +56,10 @@
                                 <td>{{ roles.name }}</td>
                                 <td>{{ roles.des }}</td>
                                 <td>
-                                    <button class="btn btn-success" @click="UpdateRoles(roles.id)">
+                                    <button class="btn btn-success btn-sm" @click="UpdateRoles(roles.id)">
                                         <i class="fas fa-pencil-alt"></i>
                                     </button>
-                                    <button class="btn btn-danger ml-2" @click="openModaldelete(roles.id)">
+                                    <button class="btn btn-danger ml-2 btn-sm" @click="openModaldelete(roles.id)">
                                         <i class="far fa-trash-alt"></i>
                                     </button>
                                 </td>
@@ -159,9 +163,6 @@
             </div>
         </div>
     </div>
-
-    <button class="btn btn-danger" @click="logout()">logout</button>
-
 </template>
 
 
@@ -169,7 +170,7 @@
 
 import axios from 'axios';
 import { onMounted, onUpdated, ref } from 'vue';
-
+import { fetchPermissions, checkPermission } from '../../../js/permissionStore.js';
 const showModal = ref(false)
 const showModaldelete = ref(false)
 const errors = ref({})
@@ -231,8 +232,6 @@ const onChildClick = (childId) => {
 
     console.log(selectedItems.value);
 };
-
-
 const resetform = () => {
     form.value.name = '';
     form.value.id = '';
@@ -241,57 +240,22 @@ const resetform = () => {
     selectedParents.value = [];  // Correct way to clear a ref
     selectedItems.value = [];    // Correct way to clear a ref
 };
-
 const openModal = () => {
     resetform();
     showModal.value = true;
 };
-
-
 const form = ref({
     name: '',
     des: '',
 });
-
 const closeModal = () => {
     showModal.value = false;
 }
-// const logout = async () => {
-//     const token = localStorage.getItem("auth_token");
-//     const headers = {
-//         Authorization: `Bearer ${token}`,
-//         Accept: "application/json", // 👈 Important to prevent CSRF check
-//     };
-//     await axios.post('/logout', { headers });
-// }
-const logout = async () => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-         toast.fire({ icon: "success", title: "ອອກຈາກລະບົບສໍາເລັດແລ້ວ" });
-        return;
-    }
-    try {
-        await axios.post('/api/logout', {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json", // Important to prevent CSRF check
-            }
-        });
-        localStorage.removeItem("auth_token");
-        toast.fire({ icon: "success", title: "ອອກຈາກລະບົບສໍາເລັດແລ້ວ" });
-        window.location.href = "/login";
-    } catch (error) {
-        console.error("Logout failed:", error.response?.data || error.message);
-    }
-};
-
-
 const validateForm = () => {
     errors.value = {}
     if (!form.value.name) errors.value.name = "name is required.";
     return Object.keys(errors.value).length === 0;
 }
-
 const getFunctionModel = async () => {
     try {
         const token = localStorage.getItem("auth_token");
@@ -310,7 +274,6 @@ const getFunctionModel = async () => {
         // }
     }
 };
-
 const getRoles = async () => {
     try {
         const token = localStorage.getItem("auth_token");
@@ -325,8 +288,13 @@ const getRoles = async () => {
         console.error('Error fetching function model:', error);
     }
 };
-
 onMounted(async () => {
+    fetchPermissions().then(() => {
+        if (checkPermission("access_role") == false) {
+        window.location.href = "/403_authorized";
+        return;
+        }
+    })
     await getFunctionModel();
     await getRoles();
     // alert(productTypes.length)
@@ -354,13 +322,14 @@ const submitForm = async () => {
         let response;
         if (form.value.id) {
             response = await axios.post(`/api/update_roles/${form.value.id}`, formData, { headers });
-            toast.fire({ icon: "success", title: "Updated Successfully" });
+            toast.fire({ icon: "success", title: "ສໍາເລັດແລ້ວ" });
         } else {
             response = await axios.post("/api/create_roles", formData,{ headers });
-            toast.fire({ icon: "success", title: "ເພີ່ມສິດສໍາເລັດແລ້ວ" });
+            toast.fire({ icon: "success", title: "ສໍາເລັດແລ້ວ" });
         }
         closeModal();
         getRoles();
+        fetchPermissions();
         console.log("Response:", response);
     } catch (error) {
         console.error("Error:", error.response?.data || error.message);

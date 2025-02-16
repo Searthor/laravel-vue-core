@@ -157,4 +157,10 @@ class RolesComtroller extends Controller
             return response()->json(['error' => 'Failed to update role: ' . $ex->getMessage()], 500); // Detailed error message
         }
     }
+
+    public function get_function_available_by_role()
+    {
+        $data = FunctionAvailable::join('function_models as f','f.id','=','function_availables.function_id')->where('role_id', auth()->user()->role_id)->select('f.name')->get();
+        return response()->json(['function' => $data], 200);
+    }
 }

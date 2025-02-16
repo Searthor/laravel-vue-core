@@ -46,6 +46,7 @@ const login = async () => {
             });
             if (response.data.success) {
                 localStorage.setItem("auth_token", response.data.token);
+                toast.fire({ icon: "success", title: "ເຂົ້າລະບົບສໍາເລັດແລ້ວ" });
                 window.location.href = "/";
             }
     } catch (error) {
@@ -79,5 +80,4 @@ const login = async () => {
 //         // errorMessage.value = "Invalid credentials!";
 //     }
 // };
-
 </script>

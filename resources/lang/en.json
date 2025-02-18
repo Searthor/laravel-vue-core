@@ -55,5 +55,6 @@
     "director_sign" : "Director Sign",
     "bill_header" :  "Bill header",
     "bill_footer" : "Bill footer",
-    "success" : "Successfully"
+    "success" : "Successfully",
+    "status": "Status"
 }

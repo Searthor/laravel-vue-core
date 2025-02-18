@@ -54,5 +54,6 @@
     "director_sign" : "董事标志",
     "bill_header" :  "帐单抬头",
     "bill_footer" : "帐单页脚",
-     "success" : "成功地"
+     "success" : "成功地",
+     "status": "地位"
 }

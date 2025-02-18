@@ -16,6 +16,18 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Roles::class);
     }
+    public function village()
+    {
+        return $this->belongsTo('App\Models\Village', 'vill_id', 'id');
+    }
+    public function district()
+    {
+        return $this->belongsTo('App\Models\District', 'dis_id', 'id');
+    }
+    public function province()
+    {
+        return $this->belongsTo('App\Models\Province', 'pro_id', 'id');
+    }
 
     /**
      * The attributes that are mass assignable.

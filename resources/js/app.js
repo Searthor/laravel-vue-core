@@ -9,6 +9,7 @@ import laLanguage from '../lang/la.json';
 import enLanguage from '../lang/en.json';
 import cnLanguage from '../lang/cn.json';
 import 'quill/dist/quill.snow.css';
+
 window.Swal = Swal
 const toast = Swal.mixin({
     toast:true,

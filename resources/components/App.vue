@@ -31,6 +31,9 @@
                             <li v-if="$checkPermission('access_user')">
                                 <router-link  class="dropdown-item" to="users"><i class="fa fa-angle-double-right"></i> {{ $t('user') }}</router-link>
                             </li>
+                            <li v-if="$checkPermission('access_user')">
+                                <router-link  class="dropdown-item" to="villages"><i class="fa fa-angle-double-right"></i> {{ $t('village') }}</router-link>
+                            </li>
                         </ul>
                     </li>
                 </ul>

@@ -373,6 +373,7 @@ import axios from "axios";
 import { onMounted, ref, nextTick } from "vue";
 import { fetchPermissions,checkPermission } from "../../../../js/permissionStore";
 import Quill from "quill";
+
 const showModal = ref(false);
 const errors = ref({});
 const dataList = ref([]);
@@ -411,7 +412,7 @@ const closeModal = () => {
 const validateForm = () => {
   errors.value = {};
   if (!form.value.name_la)
-    errors.value.name_la = $t("please_fill_information_first");
+    errors.value.name_la = 'This is required';
   return Object.keys(errors.value).length === 0;
 };
 const getData = async () => {

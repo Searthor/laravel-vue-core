@@ -55,5 +55,6 @@
     "director_sign" : "ອຳນວຍການບໍລິສັດ",
     "bill_header" :  "ສ່ວນຫົວບິນ",
     "bill_footer" : "ສ່ວນຕີນບິນ",
-    "success" : "ສໍາເລັດແລ້ວ"
+    "success" : "ສໍາເລັດແລ້ວ",
+    "status": "ສະຖານະ"
 }

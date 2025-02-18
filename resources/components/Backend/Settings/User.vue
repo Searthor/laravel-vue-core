@@ -16,7 +16,6 @@
       >
     </div>
   </div>
-
   <div class="col-lg-12 mt-4">
     <div class="card">
       <div class="card-header card-light">
@@ -50,11 +49,11 @@
       </div>
 
       <div class="card-body">
-        <!-- <div v-if="isLoading" class="text-center">
+        <div v-if="isLoading" class="text-center">
                     <div class="spinner-border" User="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                </div> -->
+                </div>
         <div class="table-responsive">
           <table class="table table-responsive-sm">
             <thead>
@@ -65,17 +64,47 @@
                 <th scope="col">{{ $t("phone") }}</th>
                 <th scope="col">{{ $t("email") }}</th>
                 <th scope="col">{{ $t("role") }}</th>
+                <th scope="col">{{ $t("village") }}</th>
+                <th scope="col">{{ $t("district") }}</th>
+                <th scope="col">{{ $t("province") }}</th>
+                <th scope="col">{{ $t("status") }}</th>
                 <th scope="col">{{ $t("action") }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="text-center" v-for="(item,i) in dataList" :key="item.id">
-                <td>{{ i+1 }}</td>
+              <tr
+                class="text-center"
+                v-for="(item, i) in dataList"
+                :key="item.id"
+              >
+                <td>{{ i + 1 }}</td>
                 <td>{{ item.firstname }}</td>
                 <td>{{ item.lastname }}</td>
                 <td>{{ item.phone }}</td>
                 <td>{{ item.email }}</td>
                 <td>{{ item.role.name }}</td>
+                <td>{{ item.village?.name_la ?? ''  }}</td>
+                <td>{{ item.district?.name_la ?? '' }}</td>
+                <td>{{ item.province?.name_la ?? '' }}</td>
+                <td>
+                  <div class="form-check form-switch" v-if="item.del == 1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="flexSwitchCheckChecked{{ item.id }}"
+                      checked
+                    />
+                    ໃຊ້ງານ
+                  </div>
+                  <div class="form-check form-switch" v-else-if="item.del == 0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="flexSwitchCheckChecked{{ item.id }}"
+                    />ບໍ່ໃຊ້ງານ
+                  
+                  </div>
+                </td>
                 <td>
                   <button
                     class="btn btn-success btn-sm"
@@ -106,6 +135,7 @@
     v-if="showModal"
     class="modal fade show"
     style="display: block; background: rgba(0, 0, 0, 0.5)"
+    id="modal-add"
   >
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -194,7 +224,7 @@
                     v-model="form.pro_id"
                     id=""
                     @change="selectDistrict"
-                    class="form-select"
+                    class="form-control"
                     aria-label="Default select example"
                     :class="{ 'is-invalid': errors.pro_id }"
                   >
@@ -221,9 +251,10 @@
                   <select
                     v-model="form.dis_id"
                     @change="selectVillage"
-                    class="form-select"
+                    class="form-control select2"
                     aria-label="Default select example"
                     :class="{ 'is-invalid': errors.dis_id }"
+                    ref="select2District"
                   >
                     <option value="">{{ $t("select") }}</option>
                     <option
@@ -246,9 +277,10 @@
                     {{ $t("village") }}</label
                   >
                   <select
+                    ref="select2Village"
                     v-model="form.vill_id"
                     id=""
-                    class="form-select"
+                    class="form-control select2"
                     aria-label="Default select example"
                     :class="{ 'is-invalid': errors.vill_id }"
                   >
@@ -384,13 +416,18 @@
 
 <script setup>
 import axios from "axios";
-import { onMounted, onUpdated, ref,computed, watch } from "vue";
+import { onMounted, onUpdated, ref, computed, watch, nextTick } from "vue";
 import {
   fetchPermissions,
   checkPermission,
 } from "../../../js/permissionStore.js";
 import debounce from "lodash/debounce";
+import jquery from "jquery";
+window.jQuery = jquery;
+window.$ = jquery;
+import("select2").then((m) => m.default());
 
+const isLoading = ref(true);
 const dataList = ref([]);
 const originalDataList = ref([]);
 const searchQuery = ref("");
@@ -404,8 +441,11 @@ const districtList = ref([]);
 const villageList = ref([]);
 const selectdistrictList = ref([]);
 const selectvillageList = ref([]);
+const select2Village = ref(null);
+const select2District = ref(null);
 
 const resetform = () => {
+  form.value.id = "";
   form.value.firstname = "";
   form.value.lastname = "";
   form.value.phone = "";
@@ -420,6 +460,7 @@ const resetform = () => {
 const openModal = () => {
   resetform();
   showModal.value = true;
+  initSelect2();
 };
 const form = ref({
   id: "",
@@ -448,7 +489,8 @@ const validateForm = () => {
   if (!form.value.vill_id) errors.value.vill_id = "error";
   if (!form.value.role_id) errors.value.role_id = "error";
   if (!form.value.password && !form.value.id) errors.value.password = "error";
-  if (!form.value.confirm_password && !form.value.id) errors.value.confirm_password = "error";
+  if (!form.value.confirm_password && !form.value.id)
+    errors.value.confirm_password = "error";
   return Object.keys(errors.value).length === 0;
 };
 const isValidPhone = (phone) => {
@@ -467,7 +509,7 @@ const getRoles = async () => {
     console.error("Error fetching function model:", error);
   }
 };
-// Computed property for efficient filtering
+// search data
 const filteredData = computed(() => {
   const s = searchQuery.value.toLowerCase().trim();
   if (!s) return originalDataList.value;
@@ -478,14 +520,13 @@ const filteredData = computed(() => {
       item.phone.includes(s)
   );
 });
-// Watch for changes in filtered data and update the main list
 watch(filteredData, (newData) => {
   dataList.value = newData;
 });
-// Debounced search function (better performance)
 const searchData = debounce((event) => {
   searchQuery.value = event.target.value;
-}, 300); // Delay execution by 300ms to prevent excessive filtering
+}, 300);
+//end
 //address
 const getVillage = async () => {
   try {
@@ -525,26 +566,26 @@ const getProvince = async () => {
 };
 const selectDistrict = (event) => {
   const id = event.target.value;
-   districtListById(id);
+  districtListById(id);
 };
 const districtListById = (id) => {
-    if (districtList.value.length > 0) {
+  if (districtList.value.length > 0) {
     selectdistrictList.value = districtList.value.filter(
       (item) => String(item.province_id) === String(id)
     );
   }
-}
+};
 const selectVillage = (event) => {
   const id = event.target.value;
   villageListById(id);
 };
 const villageListById = (id) => {
-    if (villageList.value.length > 0) {
-            selectvillageList.value = villageList.value.filter(
-            (item) => String(item.district_id) === String(id)
-            );
-    }
-}
+  if (villageList.value.length > 0) {
+    selectvillageList.value = villageList.value.filter(
+      (item) => String(item.district_id) === String(id)
+    );
+  }
+};
 //end
 const getData = async () => {
   try {
@@ -555,6 +596,7 @@ const getData = async () => {
     const response = await axios.get("/api/users", { headers });
     dataList.value = response.data.users;
     originalDataList.value = response.data.users;
+    isLoading.value = false;
   } catch (error) {
     console.error("Error fetching function model:", error);
   }
@@ -571,10 +613,39 @@ onMounted(async () => {
   await getProvince();
   await getDistrict();
   await getVillage();
+  initSelect2();
 });
+const initSelect2 = () => {
+  nextTick(() => {
+    $(select2District.value)
+      .select2({
+        width: "100%",
+        dropdownParent: $("#modal-add"),
+      })
+      .on("change", function () {
+        form.value.dis_id = $(this).val();
+        villageListById(form.value.dis_id);
+      });
+    $(select2Village.value)
+      .select2({
+        width: "100%",
+        dropdownParent: $("#modal-add"),
+      })
+      .on("change", function () {
+        form.value.vill_id = $(this).val();
+      });
+  });
+};
+
 const submitForm = async () => {
-  if (!validateForm()) return;
-  if (!form.value.id && (String(form.value.password) != String(form.value.confirm_password))) {
+  if (!validateForm()) {
+    initSelect2();
+    return;
+  }
+  if (
+    !form.value.id &&
+    String(form.value.password) != String(form.value.confirm_password)
+  ) {
     toast.fire({ icon: "error", title: "ລະຫັດຢືນຢັນບໍ່ຖືກຕ້ອງ!" });
     return;
   }
@@ -627,13 +698,19 @@ const showEdit = (item) => {
   districtListById(item.pro_id);
   villageListById(item.dis_id);
   showModal.value = true;
+  initSelect2();
 };
 const deleteData = async () => {
   try {
-    const response = await axios.delete(`/api/users/${deleteID}`);
+    const token = localStorage.getItem("auth_token");
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json", // 👈 Important to prevent CSRF check
+    };
+    const response = await axios.delete(`/api/users/${deleteID}`, { headers });
     toast.fire({ icon: "success", title: response.data.message });
     closeModaldDetele();
-    await getData();
+    getData();
   } catch (error) {
     console.error("Error deleting User:", error);
   }

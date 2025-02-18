@@ -26,10 +26,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update_branches/{id}', [BranchController::class, 'update']);
     //users
     Route::get('/users', [UserController::class, 'index']);
+    Route::delete('/users/{id}', [UserController::class, 'delete']);
     Route::post('/create_users', [UserController::class, 'store']);
     Route::post('/update_users/{id}', [UserController::class, 'update']);
     //address
     Route::get('/villages', [AddressController::class, 'village']);
+    Route::post('/create_villages', [AddressController::class, 'store']);
+    Route::post('/update_villages/{id}', [AddressController::class, 'update']);
+
     Route::get('/districts', [AddressController::class, 'district']);
     Route::get('/provinces', [AddressController::class, 'province']);
 });
